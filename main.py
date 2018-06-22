@@ -19,6 +19,16 @@ def base64_to_image(base64_str, image_path=None):
 def save_captcha():
     driver.switch_to.frame(1)
     try:
+        driver.execute_script('''
+        img = document.getElementById("CAPTCHA");
+        var imgCanvas = document.createElement("canvas"),
+        imgContext = imgCanvas.getContext("2d");
+        imgCanvas.width = img.width;
+        imgCanvas.height = img.height;
+        imgContext.drawImage(img, 0, 0, imgCanvas.width, imgCanvas.height);
+        imgInfom = imgCanvas.toDataURL("image/png");
+        localStorage.setItem("imgInfo",imgInfom);
+        ''')
         img_data = driver.execute_script('return localStorage.getItem("imgInfo")')
         base64_to_image(img_data,"CAPTCHA.png")
     except Exception as e:
@@ -28,3 +38,4 @@ driver_path = os.path.join(os.getcwd(), 'chromedriver')
 driver = webdriver.Chrome(executable_path=driver_path, chrome_options=chrome_options)
 driver.get("https://waste.epa.gov.tw/prog/IndexFrame.asp?Func=2")
 save_captcha()
+driver.quit()
